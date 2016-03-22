@@ -1,1 +1,4 @@
 node_modules/
+mydb/
+eventDB/
+.DS_Store
