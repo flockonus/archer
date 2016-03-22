@@ -8,8 +8,6 @@ var db = levelup(__dirname+'/../mydb', ()=>{
   console.log('');
 });
 
-
-
 const HELP_MSG = ` Choose a command:
     'read' (stream) output all keys and values
     'write10' 10x of random keys to DB in one batch
@@ -23,6 +21,9 @@ if(!command){
   console.log(HELP_MSG);
 } else if(command === 'write10'){
   write10();
+} else if(command === 'writeobj'){
+  // -> [object Object] -- so yes, need to encodeString
+  db.put( Date.now()+'', {foo:'bar', d: new Date(), n: 1000}, (err)=>console.log(err));
 } else if(command === 'write1000'){
   for (var i = 0; i < 100; i++) {
     write10();
