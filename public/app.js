@@ -1,29 +1,38 @@
-var DB = new Firebase("https://graves.firebaseio.com/");
-var Foo = DB.child('foo');
+'use strict';
 
-Foo.on('child_added', function(snapshot) {
-    console.log('+',snapshot.val(), snapshot.key());
+var socket = window.io.connect('http://localhost:10000', {
+  transports: ['websocket']
 });
 
-var r;
-function cb(a){
-    r = a;
-    console.log(a);
-}
+var allEvents = [];
 
-function cbAll(){
-    console.log(arguments);
-}
+socket.on('connect',function() {
+  console.log('::connect');
+});
 
-var lastAct;
+socket.on('disconnect',function(reason) {
+  console.log('::disconnect', reason);
+});
+
+socket.on('error',function(err) {
+  console.log('::error', err);
+});
+
+
+socket.on('journal', function(data){
+  allEvents = data.map((item)=>JSON.parse(item));
+  console.log('::journal', allEvents.length);
+  allEvents.forEach((ev,i)=> console.log(i+'.',ev));
+});
+
+function send(type,data){
+  data._localTime = Date.now();
+  socket.emit(type,data);
+}
 
 function doSpawn(){
-    // https://www.firebase.com/docs/security/api/
-    // https://www.firebase.com/docs/web/api/firebase/push.html
-    lastAct = Foo.push({
+    send('spawn', {
         pId: Math.random(),
-        ev: 'spawn',
-        time: Firebase.ServerValue.TIMESTAMP,
         x: Math.random(),
         y: Math.random(),
     });
