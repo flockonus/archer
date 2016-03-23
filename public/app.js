@@ -1,6 +1,7 @@
 'use strict';
 
-var socket = window.io.connect('http://localhost:10000', {
+var HOST = location.origin.replace(/^http/, 'ws')
+var socket = window.io.connect(HOST, {
   transports: ['websocket']
 });
 
