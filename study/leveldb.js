@@ -2,7 +2,7 @@
 
 var levelup = require('levelup');
 
-var db = levelup(__dirname+'/../mydb', ()=>{
+var db = levelup(__dirname+'/../.db-data/mydb', ()=>{
   console.log('START');
   console.log(db.db.getProperty('leveldb.stats'));
   console.log('');

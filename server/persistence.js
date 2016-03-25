@@ -6,7 +6,7 @@ var self = this;
 // used as auto-incrementing id for every event
 var evCounter;
 
-var evDB = levelup(__dirname+'/../eventDB', {
+var evDB = levelup(__dirname+'/../.db-data/eventDB', {
   // compression: false
   valueEncoding: 'json',
 }, function(err){
