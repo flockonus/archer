@@ -21,9 +21,14 @@ socket.on('error',function(err) {
 
 
 socket.on('journal', function(data){
-  allEvents = data.map((item)=>JSON.parse(item));
+  allEvents = data.map((item)=>{
+    var obj = JSON.parse(item);
+    obj.__time = new Date(obj._time);
+    return obj;
+  });
   console.log('::journal', allEvents.length);
-  allEvents.forEach((ev,i)=> console.log(i+'.',ev._type, new Date(ev._time) ));
+  // allEvents.forEach((ev,i)=> console.log(i+'.',ev._type, new Date(ev._time) ));
+  console.table(allEvents, ['_type', '__time']);
 });
 
 function send(type,data){
