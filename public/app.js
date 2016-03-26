@@ -28,7 +28,7 @@ socket.on('journal', function(data){
   });
   console.log('::journal', allEvents.length);
   // allEvents.forEach((ev,i)=> console.log(i+'.',ev._type, new Date(ev._time) ));
-  console.table(allEvents, ['_type', '__time']);
+  console.table(allEvents, ['_id', '_type', '__time']);
 });
 
 function send(type,data){

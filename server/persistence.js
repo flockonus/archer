@@ -2,12 +2,14 @@
 
 var levelup = require('levelup');
 var self = this;
+var lpad = require('left-pad');
 
 // used as auto-incrementing id for every event
 var evCounter;
 
 var evDB = levelup(__dirname+'/../.db-data/eventDB', {
   // compression: false
+  keyEncoding: 'binary',
   valueEncoding: 'json',
 }, function(err){
   if(err){
@@ -16,10 +18,9 @@ var evDB = levelup(__dirname+'/../.db-data/eventDB', {
   }
   evDB.createReadStream({reverse:true, limit:1})
   .on('data', function(data){
-    evCounter = JSON.parse(data.value)._id;
+    evCounter = parseInt(data.key,10);
   })
   .on('end', function(){
-    console.log('evCounter:', evCounter || 0);
     if(evCounter == null){
       console.log('eventDB is empty, seeding!');
       evCounter = 0;
@@ -27,20 +28,22 @@ var evDB = levelup(__dirname+'/../.db-data/eventDB', {
         _localTime: Date.now(),
       });
     }
+    console.log('evCounter:', evCounter);
   })
 });
 
 exports.addEvent = function addEvent(type, info){
+  var id = genId()
   var value = {
-    _id: ++evCounter,
+    // _id: genId(),
     _type: type,
     _time: Date.now(),
     info
   };
   // maybe do something with the _localTime?
   delete info._localTime;
-  console.log('+', value._id, type, info);
-  evDB.put(value._id,JSON.stringify(value));
+  console.log('+', id, type, '\n', info);
+  evDB.put(id,JSON.stringify(value));
   return true;
 };
 
@@ -64,3 +67,7 @@ exports.getAllEvents = function getAllEvents(){
     });
   });
 };
+
+function genId(){
+  return lpad( (++evCounter)+'', 14, '0');
+}
