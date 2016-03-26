@@ -11,8 +11,18 @@ module.exports = function initSockets(server){
     persistence.getAllEvents().then((list)=>{
       socket.emit('journal', list);
     });
-    socket.on('spawn', function (data) {
-      persistence.addEvent('spawn',data);
-    });
+
+    receiveEvent(socket,'spawn');
+    receiveEvent(socket,'aim');
+    receiveEvent(socket,'shoot');
+
   });
 };
+
+function receiveEvent(socket, type){
+  socket.on(type, function(data){
+    // persistence will change/add object properties
+    persistence.addEvent(type,data);
+
+  });
+}
