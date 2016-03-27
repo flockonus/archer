@@ -7,12 +7,14 @@ var socket = window.io.connect(HOST, {
 
 var allEvents = [];
 
-// pragmatic Player draft
+// pragmatic Player draft (it's all sent throguh network)
 var playerData = {
   pId: Math.random(),
   x: null,
   y: null,
 };
+
+var playerInit = false;
 
 socket.on('connect',function() {
   console.log('::connect');
@@ -92,13 +94,14 @@ function preload() {
     game.load.crossOrigin = 'anonymous';
 
     game.load.image('player', 'sprites/phaser-dude.png');
-    // game.load.image('platform', 'sprites/platform.png');
+    game.load.image('platform', 'sprites/platform.png');
 
 }
 
 
 var player;
 var arrows;
+var platforms;
 // var cursors;
 var shootButton;
 // limit 3 arrows per second
@@ -109,6 +112,8 @@ function create() {
   game.physics.startSystem(Phaser.Physics.ARCADE);
 
   player = game.add.sprite(100, 200, 'player');
+  // making invisible things, a sure way to fuckup
+  player.visible = false;
 
   game.physics.arcade.enable(player);
 
@@ -120,27 +125,27 @@ function create() {
 
   arrows = game.add.physicsGroup();
   game.physics.arcade.enable(arrows);
-  // arrows.enableBody = true;
-  // arrows.physicsBodyType = Phaser.Physics.ARCADE;
 
-  // arrows.body.collideWorldBounds = true;
-
-  // works?
-
+  // we'll need more but lets create just a few so we can detect bugs faster
   arrows.createMultiple(100, 'arrow');
   arrows.setAll('body.gravity.y', 300);
   arrows.setAll('body.collideWorldBounds', true);
 
-  // platforms.create(100, 100, 'platform');
+  platforms = game.add.physicsGroup();
+
+  var p = platforms.create(0, game.height-20, 'platform');
+  p.width = game.width*2;
   // platforms.create(-200, 300, 'platform');
   // platforms.create(200, 250, 'platform');
 
-  // platforms.setAll('body.immovable', true);
+  platforms.setAll('body.immovable', true);
+  game.physics.arcade.enable(platforms);
 
   // cursors = game.input.keyboard.createCursorKeys();
   // jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
   shootButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
+  // not working(?)..  game.camera.follow(player)
 }
 
 var aiming = false;
@@ -148,9 +153,10 @@ var onCooldown = false;
 
 function update () {
 
-  player.x = playerData.x;
-  //game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)
-
+  if(playerInit === false){
+    player.x = playerData.x;
+    player.visible = true;
+  }
 
 
   if( shootButton.isDown && aiming === false && !onCooldown){
@@ -163,25 +169,10 @@ function update () {
     //
   }
 
-  // game.physics.arcade.collide(player, platforms);
-
   player.body.velocity.x = 0;
 
-
-
-  // if (cursors.left.isDown)
-  // {
-  //   player.body.velocity.x = -250;
-  // }
-  // else if (cursors.right.isDown)
-  // {
-  //   player.body.velocity.x = 250;
-  // }
-
-  // if (jumpButton.isDown && (player.body.onFloor() || player.body.touching.down))
-  // {
-  //   player.body.velocity.y = -400;
-  // }
+  game.physics.arcade.collide(player, platforms); // phaser line 82082
+  game.physics.arcade.overlap(arrows, platforms, evArrowOverlap); // phaser line 82023
 }
 
 var arrow;
@@ -190,21 +181,46 @@ function doAim(){
   send('aim', _.extend({},playerData,{}));
 }
 
+var counter = 0;
 function doShoot() {
+  var fX = 800*(1+Math.random());
+  var fY = 200*Math.random();
+
   aiming = false;
   onCooldown = true;
   setTimeout(()=>{
     onCooldown = false;
   }, ARROW_COOLDOWN);
 
+  // TODO pack it into a function that creates a proper arrow in case it doesn exist
   arrow = arrows.getFirstExists(false);
-  arrow.reset(player.x, player.y - player.height*0.66);
-  arrow.body.velocity.x = 800;
+  arrow.reset(player.x, player.y - player.height*0.20);
+  // not working? - YES, open bug vs. https://github.com/photonstorm/phaser/blob/master/src/physics/arcade/Body.js#L662
+  // arrow.body.reset();
+
+  arrow.body.immovable = false;
+  arrow.body.enable = true;
+
+  // kinda abrupt, should make it better
+  arrow.lifespan = 3*1000;
+  arrow.body.velocity.x = fX;
+  arrow.body.velocity.y = fY;
 
   send('shoot', _.extend({},playerData,{
-    fX: 800,
-    fY: 0,
+    fX,
+    fY,
   }));
+}
+
+
+
+function evArrowOverlap(arrow, something){
+  console.log('--collision starts', arrow, something);
+  arrow.body.immovable = true;
+  arrow.body.enable = false;
+  arrow.x += arrow.x *( arrow.body.velocity.x * 0.00015 );
+  arrow.y += arrow.y *( arrow.body.velocity.y * 0.00015 );
+  // arrow.y += arrow.y + arrow.body.velocity.y * 0.01;
 }
 
 
