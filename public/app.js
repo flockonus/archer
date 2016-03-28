@@ -1,6 +1,10 @@
 'use strict';
 
-var HOST = location.origin.replace(/^http/, 'ws')
+var HOST = location.origin.replace(/^http/, 'ws');
+
+var Phaser = window.Phaser;
+var game;
+
 var socket = window.io.connect(HOST, {
   transports: ['websocket']
 });
@@ -13,8 +17,6 @@ var playerData = {
   x: null,
   y: null,
 };
-
-var playerInit = false;
 
 socket.on('connect',function() {
   console.log('::connect');
@@ -38,7 +40,7 @@ socket.on('journal', function(data){
   console.log('::journal', allEvents.length);
   console.table(allEvents, ['_id', '_type', '__time']);
   // TODO process all events before
-  doSpawn();
+  startGameLoad();
 });
 
 function send(type,data){
@@ -47,12 +49,10 @@ function send(type,data){
   socket.emit(type,data);
 }
 
-function doSpawn(){
-  // window.spawnbtn.disabled = true;
-  // window.shootbtn.disabled = false;
-  playerData.x = Math.round(Math.random() * 100);
-  send('spawn', playerData);
+function startGameLoad(){
+  game = new Phaser.Game(400, 300, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
 }
+
 
 /*
 function doShoot(){
@@ -81,10 +81,10 @@ function doShoot(){
 
 
 
-var Phaser = window.Phaser;
 
 
-var game;
+
+
 
 function preload() {
 
@@ -100,6 +100,17 @@ function preload() {
 
 
 var player;
+
+function doSpawn(){
+  // window.spawnbtn.disabled = true;
+  // window.shootbtn.disabled = false;
+  playerData.x = Math.round(Math.random() * 100);
+  playerData.y = game.world.height - 20*2;
+  player.reset(playerData.x, player.y);
+  send('spawn', playerData);
+}
+
+
 var arrows;
 var platforms;
 // var cursors;
@@ -121,6 +132,8 @@ function create() {
 
   player.body.collideWorldBounds = true;
   player.body.gravity.y = 500;
+  // we'll show when it 'respawn'
+  player.kill();
 
 
   arrows = game.add.physicsGroup();
@@ -133,7 +146,7 @@ function create() {
 
   platforms = game.add.physicsGroup();
 
-  var p = platforms.create(0, game.height-20, 'platform');
+  var p = platforms.create(0, game.world.height-20, 'platform');
   p.width = game.width*2;
   // platforms.create(-200, 300, 'platform');
   // platforms.create(200, 250, 'platform');
@@ -145,6 +158,10 @@ function create() {
   // jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
   shootButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
+  // TODO v2: apply all events to game
+
+  doSpawn();
+
   // not working(?)..  game.camera.follow(player)
 }
 
@@ -152,12 +169,6 @@ var aiming = false;
 var onCooldown = false;
 
 function update () {
-
-  if(playerInit === false){
-    player.x = playerData.x;
-    player.visible = true;
-  }
-
 
   if( shootButton.isDown && aiming === false && !onCooldown){
     aiming = true;
@@ -181,7 +192,6 @@ function doAim(){
   send('aim', _.extend({},playerData,{}));
 }
 
-var counter = 0;
 function doShoot() {
   var fX = 800*(1+Math.random());
   var fY = 200*Math.random();
@@ -221,11 +231,10 @@ function evArrowOverlap(arrow, something){
   arrow.x += arrow.x *( arrow.body.velocity.x * 0.00015 );
   arrow.y += arrow.y *( arrow.body.velocity.y * 0.00015 );
   // arrow.y += arrow.y + arrow.body.velocity.y * 0.01;
+  // TODO send event
 }
 
 
 function render () {
 
 }
-
-game = new Phaser.Game(400, 300, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });

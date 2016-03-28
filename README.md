@@ -32,3 +32,4 @@
 - some assets for dev http://examples.phaser.io/assets/
 - group overlap http://phaser.io/examples/v2/arcade-physics/group-vs-group
 - temporary mess with physics http://www.html5gamedevs.com/topic/7193-disable-remove-phusics/
+- state managing http://phaser.io/examples/v2/p2-physics/state-reset
