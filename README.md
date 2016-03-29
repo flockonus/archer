@@ -8,10 +8,14 @@
 - x (if that doesnt work, well, time to move to own server)
 - x setup phaser and one player
 - x player shoot on SPACE
-- arrow collide, stop + send event
+- x arrow collide, stop
 - sync actions across network
+- think/implement arrow colision event
 - make real-time actions display well
 - push force github older project
+- tag properly
+- prepare server to run multiple archer versions!
+
 
 ## version 2
 

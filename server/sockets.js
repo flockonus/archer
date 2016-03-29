@@ -2,8 +2,9 @@
 
 var persistence = require('./persistence');
 
+var io;
 module.exports = function initSockets(server){
-  var io = require('socket.io')(server);
+  io = require('socket.io')(server);
 
   io.set('transports', ['websocket']);
 
@@ -22,7 +23,10 @@ module.exports = function initSockets(server){
 function receiveEvent(socket, type){
   socket.on(type, function(data){
     // persistence will change/add object properties
-    persistence.addEvent(type,data);
+    persistence.addEvent(type, data);
 
+    // broadcast
+    io.emit(type,data);
+    // socket.broadcast.emit(type, data);
   });
 }

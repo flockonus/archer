@@ -5,6 +5,8 @@ var HOST = location.origin.replace(/^http/, 'ws');
 var Phaser = window.Phaser;
 var game;
 
+var isGameInitialized = false;
+
 var socket = window.io.connect(HOST, {
   transports: ['websocket']
 });
@@ -50,32 +52,11 @@ function send(type,data){
 }
 
 function startGameLoad(){
-  game = new Phaser.Game(400, 300, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
+  if(!isGameInitialized){
+    game = new Phaser.Game(400, 300, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
+    isGameInitialized = true;
+  }
 }
-
-
-/*
-function doShoot(){
-  send('shoot', {
-    pId: Math.random(),
-    x: Math.random(),
-    y: Math.random(),
-    fX: 20,
-    fY: 5,
-  });
-}
-*/
-
-// window.spawnbtn.onclick = doSpawn;
-
-// window.shootbtn.onmousedown = doAim;
-
-// window.shootbtn.onkeydown = doAim;
-
-// window.shootbtn.onclick = doShoot; //(ev)=> console.log('onclick', ev)
-
-
-
 
 
 
@@ -100,16 +81,7 @@ function preload() {
 
 
 var player;
-
-function doSpawn(){
-  // window.spawnbtn.disabled = true;
-  // window.shootbtn.disabled = false;
-  playerData.x = Math.round(Math.random() * 100);
-  playerData.y = game.world.height - 20*2;
-  player.reset(playerData.x, player.y);
-  send('spawn', playerData);
-}
-
+var players;
 
 var arrows;
 var platforms;
@@ -120,11 +92,13 @@ var ARROW_COOLDOWN = 1000/3;
 
 function create() {
 
+  // do not pause when losing focus
+  game.stage.disableVisibilityChange = true;
+
   game.physics.startSystem(Phaser.Physics.ARCADE);
 
-  player = game.add.sprite(100, 200, 'player');
+  player = game.add.sprite(0, 0, 'player');
   // making invisible things, a sure way to fuckup
-  player.visible = false;
 
   game.physics.arcade.enable(player);
 
@@ -134,6 +108,11 @@ function create() {
   player.body.gravity.y = 500;
   // we'll show when it 'respawn'
   player.kill();
+
+  players = game.add.physicsGroup();
+  game.physics.arcade.enable(players);
+
+  players.add(player);
 
 
   arrows = game.add.physicsGroup();
@@ -165,6 +144,13 @@ function create() {
   // not working(?)..  game.camera.follow(player)
 }
 
+function doSpawn(){
+  playerData.x = Math.round(Math.random() * 140);
+  playerData.y = game.world.height - 20*2;
+  player.reset(playerData.x, playerData.y);
+  send('spawn', playerData);
+}
+
 var aiming = false;
 var onCooldown = false;
 
@@ -182,7 +168,7 @@ function update () {
 
   player.body.velocity.x = 0;
 
-  game.physics.arcade.collide(player, platforms); // phaser line 82082
+  game.physics.arcade.collide(players, platforms); // phaser line 82082
   game.physics.arcade.overlap(arrows, platforms, evArrowOverlap); // phaser line 82023
 }
 
@@ -216,7 +202,7 @@ function doShoot() {
   arrow.body.velocity.x = fX;
   arrow.body.velocity.y = fY;
 
-  send('shoot', _.extend({},playerData,{
+  send('shoot', _.extend({}, playerData, {
     fX,
     fY,
   }));
@@ -225,12 +211,11 @@ function doShoot() {
 
 
 function evArrowOverlap(arrow, something){
-  console.log('--collision starts', arrow, something);
+  // console.log('--collision starts', arrow, something);
   arrow.body.immovable = true;
   arrow.body.enable = false;
   arrow.x += arrow.x *( arrow.body.velocity.x * 0.00015 );
   arrow.y += arrow.y *( arrow.body.velocity.y * 0.00015 );
-  // arrow.y += arrow.y + arrow.body.velocity.y * 0.01;
   // TODO send event
 }
 
@@ -238,3 +223,32 @@ function evArrowOverlap(arrow, something){
 function render () {
 
 }
+
+var ACTIONS = ['spawn', 'aim', 'shoot'];
+
+ACTIONS.forEach((type)=> handleActionHandler(type));
+
+function handleActionHandler(type){
+  socket.on(type, function(data){
+    if(data.pId === playerData.pId){
+      return;
+    }
+    console.log('+',type, data);
+    switch(type){
+      case 'spawn':
+        var p2 = game.add.sprite(data.x, data.y, 'player');
+        p2.alpha = 0.7;
+        p2.name = data.pId;
+        game.physics.arcade.enable(p2);
+        players.add(p2);
+        break;
+      default:
+        console.error('unhandled ACTION', type, data);
+    }
+  });
+}
+
+
+setInterval(function debugWhatever(){
+  console.log('=> ', player.position.x, player.position.y);
+}, 250);
