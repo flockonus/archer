@@ -11,6 +11,8 @@ var socket = window.io.connect(HOST, {
   transports: ['websocket']
 });
 
+var ACTIONS = ['spawn', 'aim', 'shoot'];
+
 var allEvents = [];
 
 // pragmatic Player draft (it's all sent throguh network)
@@ -141,13 +143,15 @@ function create() {
 
   doSpawn();
 
-  // not working(?)..  game.camera.follow(player)
+  // listen + render other player actions
+  ACTIONS.forEach((type)=> handleActionHandler(type));
 }
 
 function doSpawn(){
   playerData.x = Math.round(Math.random() * 140);
-  playerData.y = game.world.height - 20*2;
+  playerData.y = game.world.height - 20*3;
   player.reset(playerData.x, playerData.y);
+  player.name = playerData.pId;
   send('spawn', playerData);
 }
 
@@ -224,10 +228,6 @@ function render () {
 
 }
 
-var ACTIONS = ['spawn', 'aim', 'shoot'];
-
-ACTIONS.forEach((type)=> handleActionHandler(type));
-
 function handleActionHandler(type){
   socket.on(type, function(data){
     if(data.pId === playerData.pId){
@@ -236,11 +236,14 @@ function handleActionHandler(type){
     console.log('+',type, data);
     switch(type){
       case 'spawn':
-        var p2 = game.add.sprite(data.x, data.y, 'player');
-        p2.alpha = 0.7;
-        p2.name = data.pId;
-        game.physics.arcade.enable(p2);
-        players.add(p2);
+        // why ist this position set working working?
+        var other = game.add.sprite(data.x, data.y, 'player');
+        other.alpha = 0.7;
+        other.name = data.pId;
+        game.physics.arcade.enable(other);
+        other.body.gravity.y = 500;
+        players.add(other);
+        other.position.set(data.x, data.y);
         break;
       default:
         console.error('unhandled ACTION', type, data);
@@ -250,5 +253,5 @@ function handleActionHandler(type){
 
 
 setInterval(function debugWhatever(){
-  console.log('=> ', player.position.x, player.position.y);
+  // console.log('=> ', player.position.x, player.position.y);
 }, 250);
