@@ -83,7 +83,7 @@ var platforms;
 // var cursors;
 var shootButton;
 // limit 3 arrows per second
-var ARROW_COOLDOWN = 1000/3;
+
 
 function create() {
 
@@ -101,14 +101,6 @@ function create() {
   // players.add(player);
 
 
-  arrows = game.add.physicsGroup();
-  game.physics.arcade.enable(arrows);
-
-  // we'll need more but lets create just a few so we can detect bugs faster
-  arrows.createMultiple(100, 'arrow');
-  arrows.setAll('body.gravity.y', 300);
-  arrows.setAll('body.collideWorldBounds', true);
-
   platforms = game.add.physicsGroup();
 
   var p = platforms.create(0, game.world.height-20, 'platform');
@@ -125,15 +117,10 @@ function create() {
 
   // TODO v2: apply all events to game
 
-  doSpawn();
+  player.doSpawn();
 
   // listen + render other player actions
   ACTIONS.forEach((type)=> handleActionHandler(type));
-}
-
-function doSpawn(){
-  player.spawn();
-  send('spawn', player.publicData);
 }
 
 var aiming = false;
@@ -147,14 +134,14 @@ function update () {
   }
 
   if( shootButton.isUp && aiming === true && !onCooldown){
-    doShoot();
+    player.doShoot();
     //
   }
 
   player.sprite.body.velocity.x = 0;
 
   game.physics.arcade.collide(player.sprite, platforms); // phaser line 82082
-  game.physics.arcade.overlap(arrows, platforms, evArrowOverlap); // phaser line 82023
+  game.physics.arcade.overlap(player.arrows, platforms, evArrowOverlap); // phaser line 82023
 }
 
 var arrow;
@@ -162,37 +149,6 @@ var arrow;
 function doAim(){
   send('aim', _.extend({}, player.publicData, {}));
 }
-
-function doShoot() {
-  var fX = 800*(1+Math.random());
-  var fY = 200*Math.random();
-
-  aiming = false;
-  onCooldown = true;
-  setTimeout(()=>{
-    onCooldown = false;
-  }, ARROW_COOLDOWN);
-
-  // TODO pack it into a function that creates a proper arrow in case it doesn exist
-  arrow = arrows.getFirstExists(false);
-  arrow.reset(player.sprite.x, player.sprite.y - player.sprite.height*0.20);
-  // not working? - YES, open bug vs. https://github.com/photonstorm/phaser/blob/master/src/physics/arcade/Body.js#L662
-  // arrow.body.reset();
-
-  arrow.body.immovable = false;
-  arrow.body.enable = true;
-
-  // kinda abrupt, should make it better
-  arrow.lifespan = 3*1000;
-  arrow.body.velocity.x = fX;
-  arrow.body.velocity.y = fY;
-
-  send('shoot', _.extend({}, player.publicData, {
-    fX,
-    fY,
-  }));
-}
-
 
 
 function evArrowOverlap(arrow, something){
