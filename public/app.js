@@ -55,22 +55,18 @@ function startGameLoad(){
 
 
 
-
-
-
-
-
-
-
 function preload() {
 
-    game.stage.backgroundColor = '#85b5e1';
+  // do not pause when losing focus
+  game.stage.disableVisibilityChange = true;
 
-    game.load.baseURL = 'http://examples.phaser.io/assets/';
-    game.load.crossOrigin = 'anonymous';
+  game.stage.backgroundColor = '#85b5e1';
 
-    game.load.image('player', 'sprites/phaser-dude.png');
-    game.load.image('platform', 'sprites/platform.png');
+  game.load.baseURL = 'http://examples.phaser.io/assets/';
+  game.load.crossOrigin = 'anonymous';
+
+  game.load.image('player', 'sprites/phaser-dude.png');
+  game.load.image('platform', 'sprites/platform.png');
 
 }
 
@@ -86,9 +82,6 @@ var shootButton;
 
 
 function create() {
-
-  // do not pause when losing focus
-  game.stage.disableVisibilityChange = true;
 
   game.physics.startSystem(Phaser.Physics.ARCADE);
 
