@@ -9,7 +9,8 @@
 - x setup phaser and one player
 - x player shoot on SPACE
 - x arrow collide, stop
-- sync actions across network
+- sync spawn
+- sync arrrow shot
 - think/implement arrow colision event
 - make real-time actions display well
 - push force github older project

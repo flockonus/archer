@@ -15,13 +15,6 @@ var ACTIONS = ['spawn', 'aim', 'shoot'];
 
 var allEvents = [];
 
-// pragmatic Player draft (it's all sent throguh network)
-var playerData = {
-  pId: Math.random(),
-  x: null,
-  y: null,
-};
-
 socket.on('connect',function() {
   console.log('::connect');
 });
@@ -83,7 +76,7 @@ function preload() {
 
 
 var player;
-var players;
+var otherPlayers;
 
 var arrows;
 var platforms;
@@ -99,22 +92,13 @@ function create() {
 
   game.physics.startSystem(Phaser.Physics.ARCADE);
 
-  player = game.add.sprite(0, 0, 'player');
+  player = new PlayerMe(0,0);
   // making invisible things, a sure way to fuckup
 
-  game.physics.arcade.enable(player);
+  // players = game.add.physicsGroup();
+  // game.physics.arcade.enable(players);
 
-  // player.enableBody = true;
-
-  player.body.collideWorldBounds = true;
-  player.body.gravity.y = 500;
-  // we'll show when it 'respawn'
-  player.kill();
-
-  players = game.add.physicsGroup();
-  game.physics.arcade.enable(players);
-
-  players.add(player);
+  // players.add(player);
 
 
   arrows = game.add.physicsGroup();
@@ -148,11 +132,8 @@ function create() {
 }
 
 function doSpawn(){
-  playerData.x = Math.round(Math.random() * 140);
-  playerData.y = game.world.height - 20*3;
-  player.reset(playerData.x, playerData.y);
-  player.name = playerData.pId;
-  send('spawn', playerData);
+  player.spawn();
+  send('spawn', player.publicData);
 }
 
 var aiming = false;
@@ -170,16 +151,16 @@ function update () {
     //
   }
 
-  player.body.velocity.x = 0;
+  player.sprite.body.velocity.x = 0;
 
-  game.physics.arcade.collide(players, platforms); // phaser line 82082
+  game.physics.arcade.collide(player.sprite, platforms); // phaser line 82082
   game.physics.arcade.overlap(arrows, platforms, evArrowOverlap); // phaser line 82023
 }
 
 var arrow;
 
 function doAim(){
-  send('aim', _.extend({},playerData,{}));
+  send('aim', _.extend({}, player.publicData, {}));
 }
 
 function doShoot() {
@@ -194,7 +175,7 @@ function doShoot() {
 
   // TODO pack it into a function that creates a proper arrow in case it doesn exist
   arrow = arrows.getFirstExists(false);
-  arrow.reset(player.x, player.y - player.height*0.20);
+  arrow.reset(player.sprite.x, player.sprite.y - player.sprite.height*0.20);
   // not working? - YES, open bug vs. https://github.com/photonstorm/phaser/blob/master/src/physics/arcade/Body.js#L662
   // arrow.body.reset();
 
@@ -206,7 +187,7 @@ function doShoot() {
   arrow.body.velocity.x = fX;
   arrow.body.velocity.y = fY;
 
-  send('shoot', _.extend({}, playerData, {
+  send('shoot', _.extend({}, player.publicData, {
     fX,
     fY,
   }));
@@ -230,7 +211,8 @@ function render () {
 
 function handleActionHandler(type){
   socket.on(type, function(data){
-    if(data.pId === playerData.pId){
+    // ignore our own spawn
+    if(data.pId === player.pId){
       return;
     }
     console.log('+',type, data);
@@ -242,7 +224,7 @@ function handleActionHandler(type){
         other.name = data.pId;
         game.physics.arcade.enable(other);
         other.body.gravity.y = 500;
-        players.add(other);
+        // TODO players.add(other);
         other.position.set(data.x, data.y);
         break;
       default:
