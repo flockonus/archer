@@ -1,5 +1,8 @@
 # Archer project
 
+`npm run dev`
+
+
 ## version 1
 
 - x create basic project
@@ -9,8 +12,9 @@
 - x setup phaser and one player
 - x player shoot on SPACE
 - x arrow collide, stop
-- sync spawn
-- sync arrrow shot
+- x sync spawn
+- x sync arrrow shot
+- sync disconnect
 - think/implement arrow colision event
 - make real-time actions display well
 - push force github older project

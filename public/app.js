@@ -129,8 +129,10 @@ function update () {
   }
 
   if( shootButton.isUp && aiming === true && !onCooldown){
+    aiming = false;
+    onCooldown = true;
+    setTimeout(()=> onCooldown = false, ARROW_COOLDOWN);
     player.doShoot();
-    //
   }
 
   player.sprite.body.velocity.x = 0;
@@ -138,6 +140,7 @@ function update () {
   game.physics.arcade.collide(player.sprite, platforms); // phaser line 82082
   game.physics.arcade.collide(PlayerOthers.group, platforms); // phaser line 82082
   game.physics.arcade.overlap(player.arrows, platforms, evArrowOverlap); // phaser line 82023
+  game.physics.arcade.overlap(PlayerOthers.arrows, platforms, evArrowOverlap); // phaser line 82023
 }
 
 var arrow;
@@ -146,7 +149,7 @@ function doAim(){
   send('aim', _.extend({}, player.publicData, {}));
 }
 
-
+// TODO make it work for both others and self player
 function evArrowOverlap(arrow, something){
   // console.log('--collision starts', arrow, something);
   arrow.body.immovable = true;
@@ -172,6 +175,9 @@ function handleActionHandler(type){
       case 'spawn':
         // why ist this position set working working?
         PlayerOthers.doSpawn(data);
+        break;
+      case 'shoot':
+        PlayerOthers.doShoot(data);
         break;
       default:
         console.error('unhandled ACTION', type, data);

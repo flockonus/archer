@@ -2,7 +2,15 @@
 class PlayerOthers {
 
   static init() {
-    PlayerOthers.group = game.add.physicsGroup();
+    this.group = game.add.physicsGroup();
+
+    // player has control of it's arrows
+    this.arrows = game.add.physicsGroup();
+    game.physics.arcade.enable(this.arrows);
+    // what if we run out?
+    this.arrows.createMultiple(200, 'arrow');
+    this.arrows.setAll('body.gravity.y', 300);
+    this.arrows.setAll('body.collideWorldBounds', true);
   }
 
   static doSpawn(data){
@@ -11,7 +19,24 @@ class PlayerOthers {
     other.name = data.pId;
     game.physics.arcade.enable(other);
     other.body.gravity.y = 500;
-    PlayerOthers.group.add(other);
+    this.group.add(other);
     other.position.set(data.x, data.y);
+  }
+
+  static doShoot(data) {
+    // var fX = 800*(1+Math.random());
+    // var fY = 200*Math.random();
+
+    var arrow = this.arrows.getFirstDead();
+    arrow.reset(data.x, data.y);
+
+    arrow.body.immovable = false;
+    arrow.body.enable = true;
+
+    // kinda abrupt, should make it better
+    // not working! arrow.lifespan = 3*1000;
+    setTimeout(()=> arrow.kill(), 3*1000);
+    arrow.body.velocity.x = data.fX;
+    arrow.body.velocity.y = data.fY;
   }
 }

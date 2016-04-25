@@ -1,3 +1,5 @@
+'use strict';
+
 const ARROW_COOLDOWN = 1000/3;
 
 // should be just one
@@ -40,13 +42,12 @@ class PlayerMe {
     var fX = 800*(1+Math.random());
     var fY = 200*Math.random();
 
-    aiming = false;
-    onCooldown = true;
-    setTimeout(()=> onCooldown = false, ARROW_COOLDOWN);
+    var x = this.sprite.x;
+    var y = this.sprite.y - this.sprite.height*0.20;
 
     // TODO pack it into a function that creates a proper arrow in case it doesn exist
     var arrow = this.arrows.getFirstDead();
-    arrow.reset(player.sprite.x, player.sprite.y - player.sprite.height*0.20);
+    arrow.reset(x, y);
     // not working? - YES, open bug vs. https://github.com/photonstorm/phaser/blob/master/src/physics/arcade/Body.js#L662
     // arrow.body.reset();
 
@@ -62,6 +63,8 @@ class PlayerMe {
     send('shoot', _.extend({}, this.publicData, {
       fX,
       fY,
+      x,
+      y,
     }));
   }
 }
