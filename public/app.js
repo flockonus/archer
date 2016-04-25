@@ -117,6 +117,7 @@ function create() {
   ACTIONS.forEach((type)=> handleActionHandler(type));
 }
 
+// TODO refactor into PlayerMe
 var aiming = false;
 var onCooldown = false;
 
