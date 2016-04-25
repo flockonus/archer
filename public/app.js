@@ -72,7 +72,7 @@ function preload() {
 
 
 var player;
-var otherPlayers;
+var others;
 
 var arrows;
 var platforms;
@@ -86,6 +86,7 @@ function create() {
   game.physics.startSystem(Phaser.Physics.ARCADE);
 
   player = new PlayerMe(0,0);
+  PlayerOthers.init();
   // making invisible things, a sure way to fuckup
 
   // players = game.add.physicsGroup();
@@ -134,6 +135,7 @@ function update () {
   player.sprite.body.velocity.x = 0;
 
   game.physics.arcade.collide(player.sprite, platforms); // phaser line 82082
+  game.physics.arcade.collide(PlayerOthers.group, platforms); // phaser line 82082
   game.physics.arcade.overlap(player.arrows, platforms, evArrowOverlap); // phaser line 82023
 }
 
@@ -168,13 +170,7 @@ function handleActionHandler(type){
     switch(type){
       case 'spawn':
         // why ist this position set working working?
-        var other = game.add.sprite(data.x, data.y, 'player');
-        other.alpha = 0.7;
-        other.name = data.pId;
-        game.physics.arcade.enable(other);
-        other.body.gravity.y = 500;
-        // TODO players.add(other);
-        other.position.set(data.x, data.y);
+        PlayerOthers.doSpawn(data);
         break;
       default:
         console.error('unhandled ACTION', type, data);

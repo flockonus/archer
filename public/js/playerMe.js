@@ -4,8 +4,8 @@ const ARROW_COOLDOWN = 1000/3;
 class PlayerMe {
   constructor(x,y) {
     // maybe? http://examples.phaser.io/_site/view_full.html?d=sprites&f=extending+sprite+demo+1.js&t=extending%20sprite%20demo%201
-    this.name = this.pId = Math.random();
     this.sprite = game.add.sprite(x, y, 'player');
+    this.sprite.name = this.pId = Math.random();
     this.body = this.sprite.body;
     game.physics.arcade.enable(this.sprite);
     // player.enableBody = true;
@@ -42,9 +42,7 @@ class PlayerMe {
 
     aiming = false;
     onCooldown = true;
-    setTimeout(()=>{
-      onCooldown = false;
-    }, ARROW_COOLDOWN);
+    setTimeout(()=> onCooldown = false, ARROW_COOLDOWN);
 
     // TODO pack it into a function that creates a proper arrow in case it doesn exist
     var arrow = this.arrows.getFirstDead();
@@ -56,7 +54,8 @@ class PlayerMe {
     arrow.body.enable = true;
 
     // kinda abrupt, should make it better
-    arrow.lifespan = 3*1000;
+    // not working! arrow.lifespan = 3*1000;
+    setTimeout(()=> arrow.kill(), 3*1000);
     arrow.body.velocity.x = fX;
     arrow.body.velocity.y = fY;
 
