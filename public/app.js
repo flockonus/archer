@@ -11,7 +11,8 @@ var socket = window.io.connect(HOST, {
   transports: ['websocket']
 });
 
-var ACTIONS = ['spawn', 'aim', 'shoot'];
+// all events we care about
+var ACTIONS = ['spawn', 'aim', 'shoot', 'disconnected'];
 
 var allEvents = [];
 
@@ -26,7 +27,6 @@ socket.on('disconnect',function(reason) {
 socket.on('error',function(err) {
   console.log('::error', err);
 });
-
 
 socket.on('journal', function(data){
   allEvents = data.map((item)=>{
@@ -178,6 +178,9 @@ function handleActionHandler(type){
         break;
       case 'shoot':
         PlayerOthers.doShoot(data);
+        break;
+      case 'disconnected':
+        PlayerOthers.doRemove(data.pId);
         break;
       default:
         console.error('unhandled ACTION', type, data);

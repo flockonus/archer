@@ -24,25 +24,25 @@ var evDB = levelup(__dirname+'/../.db-data/eventDB', {
     if(evCounter == null){
       console.log('eventDB is empty, seeding!');
       evCounter = 0;
-      self.addEvent('bigbang',{
-        _localTime: Date.now(),
+      self.addEvent('bigbang', {
+        _time: Date.now(),
       });
     }
     console.log('evCounter:', evCounter);
   })
 });
 
-exports.addEvent = function addEvent(type, info){
+exports.addEvent = function addEvent(_type, info){
   var id = genId()
   var value = {
     // _id: genId(),
-    _type: type,
     _time: Date.now(),
-    info
+    _type,
+    info,
   };
   // maybe do something with the _localTime?
   delete info._localTime;
-  console.log('+', id, type, '\n', info);
+  console.log('+', id, _type, '\n', info);
   evDB.put(id,JSON.stringify(value));
   return true;
 };

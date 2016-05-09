@@ -14,16 +14,17 @@
 - x arrow collide, stop
 - x sync spawn
 - x sync arrrow shot
-- sync disconnect
+- x sync disconnect
 - think/implement arrow colision event
-- make real-time actions display well
+- ensure real-time actions display well
 - push force github older project
 - tag properly
-- prepare server to run multiple archer versions!
+- prepare Azure server to run multiple archer versions!
 
 
 ## version 2
 
+- correct the pId, maybe remove it, should be server side anyway
 - replay events with consistent timing
 - apply Phaser drag and drop example
 - render archer doll

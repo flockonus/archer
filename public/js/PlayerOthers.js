@@ -39,4 +39,15 @@ class PlayerOthers {
     arrow.body.velocity.x = data.fX;
     arrow.body.velocity.y = data.fY;
   }
+
+  static doRemove(pId) {
+    var player;
+    this.group.forEach(function(child, index, children) {
+      if (child.name == pId) {
+        player = child;
+      }
+    });
+    game.add.tween(player).to( { alpha: 0 }, 2000, Phaser.Easing.Exponential.InOut, true, 0);
+    setTimeout(()=> player.destroy(), 2000);
+  }
 }
