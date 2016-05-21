@@ -35,6 +35,7 @@
 
 ## docs
 
+- drag drop launcher http://phaser.io/examples/v2/arcade-physics/launcher
 - keypress event http://phaser.io/examples/v2/input/keyboard-hotkeys
 - plataformer + cursor keys http://phaser.io/sandbox/edit/3
 - input & shoot timeout, outOfBounds group http://phaser.io/examples/v2/input/keyboard-justpressed
@@ -43,3 +44,4 @@
 - group overlap http://phaser.io/examples/v2/arcade-physics/group-vs-group
 - temporary mess with physics http://www.html5gamedevs.com/topic/7193-disable-remove-phusics/
 - state managing http://phaser.io/examples/v2/p2-physics/state-reset
+- phaser asset http://examples.phaser.io/assets/sprites/longarrow2.png
