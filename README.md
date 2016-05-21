@@ -17,9 +17,9 @@
 - x sync disconnect
 - SKIP think/implement arrow colision event
 - SKIP ensure real-time actions display well
-- push force github older project
-- tag properly
-- prepare Azure server to run multiple archer versions!
+- x push force github older project
+- x tag properly
+- SKIP prepare Azure server to run multiple archer versions!
 
 
 ## version 2
