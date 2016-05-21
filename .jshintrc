@@ -19,11 +19,20 @@
     "describe": false,
     "it": false,
     "before": false,
-    "angular": false
+    "angular": false,
+    "PlayerOthers": false,
+    "PlayerMe": false,
+    "_": false,
+    "send": true,
+    "game": true
   },
 
   // Allow ES6.
   "esnext": true,
+
+  "asi": true,
+
+  "validthis": true,
 
   /*
    * ENFORCING OPTIONS
@@ -60,6 +69,8 @@
 
   // Warn when variables are defined but never used.
   "unused": "vars",
+
+  "esversion": 6,
 
   /*
    * RELAXING OPTIONS

@@ -15,8 +15,8 @@
 - x sync spawn
 - x sync arrrow shot
 - x sync disconnect
-- think/implement arrow colision event
-- ensure real-time actions display well
+- SKIP think/implement arrow colision event
+- SKIP ensure real-time actions display well
 - push force github older project
 - tag properly
 - prepare Azure server to run multiple archer versions!
@@ -24,11 +24,11 @@
 
 ## version 2
 
-- correct the pId, maybe remove it, should be server side anyway
-- replay events with consistent timing
 - apply Phaser drag and drop example
+- WHY? correct the pId, maybe remove it, should be server side anyway
+- WHY? replay events with consistent timing
+- WHY? set a persistent pId (think of player dictionary too on server & client)
 - render archer doll
-- set a persistent pId (think of player dictionary too on server & client)
 
 
 
